@@ -22,8 +22,6 @@ public class ServicioSocio {
      * =====================================================
      * CONSTRUCTOR
      * =====================================================
-     * Carga automáticamente los socios guardados.
-     * =====================================================
      */
 
     public ServicioSocio() {
@@ -37,9 +35,63 @@ public class ServicioSocio {
      * =====================================================
      */
 
-    public void agregarSocio(Socio socio) {
+    public boolean agregarSocio(Socio socio) {
+
+        if(existeDocumento(
+                socio.getDocumento())) {
+
+            return false;
+        }
 
         socios.add(socio);
+
+        return true;
+    }
+
+    /*
+     * =====================================================
+     * VERIFICAR DOCUMENTO EXISTENTE
+     * =====================================================
+     */
+
+    public boolean existeDocumento(
+            String documento) {
+
+        return buscarPorDocumento(
+                documento) != null;
+    }
+
+    /*
+     * =====================================================
+     * VERIFICAR SOCIO DUPLICADO
+     * =====================================================
+     */
+
+    public boolean existeSocioDuplicado(
+            String nombre,
+            String telefono,
+            String correo) {
+
+        for(Socio socio : socios) {
+
+            if(socio.getNombre()
+                    .equalsIgnoreCase(nombre)
+
+                    &&
+
+                    socio.getTelefono()
+                    .equalsIgnoreCase(telefono)
+
+                    &&
+
+                    socio.getCorreo()
+                    .equalsIgnoreCase(correo)) {
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /*
@@ -48,7 +100,8 @@ public class ServicioSocio {
      * =====================================================
      */
 
-    public Socio buscarSocio(String documento) {
+    public Socio buscarSocio(
+            String documento) {
 
         for(Socio socio : socios) {
 
@@ -61,6 +114,7 @@ public class ServicioSocio {
 
         return null;
     }
+
     /*
      * =====================================================
      * BUSCAR POR DOCUMENTO
@@ -72,13 +126,15 @@ public class ServicioSocio {
 
         return buscarSocio(documento);
     }
+
     /*
      * =====================================================
      * ELIMINAR SOCIO
      * =====================================================
      */
 
-    public boolean eliminarSocio(String documento) {
+    public boolean eliminarSocio(
+            String documento) {
 
         Socio socio =
                 buscarSocio(documento);
@@ -93,17 +149,6 @@ public class ServicioSocio {
         return false;
     }
 
-    /*
-     * =====================================================
-     * GUARDAR DATOS
-     * =====================================================
-     */
-
-    public void guardarDatos() {
-
-        ArchivoSocios.guardar(socios);
-    }
-    
     /*
      * =====================================================
      * ACTUALIZAR SOCIO
@@ -136,7 +181,18 @@ public class ServicioSocio {
 
         return false;
     }
-    
+
+    /*
+     * =====================================================
+     * GUARDAR DATOS
+     * =====================================================
+     */
+
+    public void guardarDatos() {
+
+        ArchivoSocios.guardar(socios);
+    }
+
     /*
      * =====================================================
      * GETTERS Y SETTERS
@@ -147,7 +203,9 @@ public class ServicioSocio {
         return socios;
     }
 
-    public void setSocios(ArrayList<Socio> socios) {
+    public void setSocios(
+            ArrayList<Socio> socios) {
+
         this.socios = socios;
     }
 }

@@ -29,7 +29,7 @@ import servicio.ServicioItem;
 public class PanelInventario extends JPanel {
 
     private ServicioItem servicioItem;
-
+    private PanelPrestamos panelPrestamos;
     private JTable tabla;
 
     private DefaultTableModel modeloTabla;
@@ -51,10 +51,11 @@ public class PanelInventario extends JPanel {
      */
 
     public PanelInventario(
-            ServicioItem servicioItem) {
+            ServicioItem servicioItem,
+            PanelPrestamos panelPrestamos) {
 
         this.servicioItem = servicioItem;
-
+        this.panelPrestamos = panelPrestamos;
         setLayout(null);
 
         /*
@@ -317,6 +318,8 @@ public class PanelInventario extends JPanel {
 
                 actualizarTabla();
 
+                panelPrestamos.refrescarCombos();
+
                 limpiarCampos();
 
                 JOptionPane.showMessageDialog(
@@ -372,8 +375,10 @@ public class PanelInventario extends JPanel {
 
                 actualizarTabla();
 
-                limpiarCampos();
+                panelPrestamos.refrescarCombos();
 
+                limpiarCampos();
+                
                 JOptionPane.showMessageDialog(
                         null,
                         "Item eliminado correctamente");

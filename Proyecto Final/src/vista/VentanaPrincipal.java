@@ -1,6 +1,8 @@
 package vista;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
 import servicio.ServicioItem;
@@ -22,6 +24,16 @@ public class VentanaPrincipal extends JFrame {
     private static final long serialVersionUID = 1L;
 
     private JTabbedPane pestañas;
+
+    private JButton btnSalir;
+
+    /*
+     * =====================================================
+     * PANEL COMPARTIDO
+     * =====================================================
+     */
+
+    private PanelPrestamos panelPrestamos;
 
     /*
      * =====================================================
@@ -50,6 +62,8 @@ public class VentanaPrincipal extends JFrame {
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        setLayout(null);
+
         /*
          * =====================================================
          * INICIALIZAR SERVICIOS
@@ -66,11 +80,29 @@ public class VentanaPrincipal extends JFrame {
 
         /*
          * =====================================================
+         * CREAR PANEL PRESTAMOS
+         * =====================================================
+         */
+
+        panelPrestamos =
+                new PanelPrestamos(
+                        servicioItem,
+                        servicioSocio,
+                        servicioPrestamo);
+
+        /*
+         * =====================================================
          * CREAR TABBEDPANE
          * =====================================================
          */
 
         pestañas = new JTabbedPane();
+
+        pestañas.setBounds(
+                0,
+                0,
+                980,
+                600);
 
         /*
          * =====================================================
@@ -80,18 +112,19 @@ public class VentanaPrincipal extends JFrame {
 
         pestañas.addTab(
                 "Inventario",
-                new PanelInventario(servicioItem));
+                new PanelInventario(
+                        servicioItem,
+                        panelPrestamos));
 
         pestañas.addTab(
                 "Socios",
-                new PanelSocios(servicioSocio));
+                new PanelSocios(
+                        servicioSocio,
+                        panelPrestamos));
 
         pestañas.addTab(
                 "Prestamos",
-                new PanelPrestamos(
-                        servicioItem,
-                        servicioSocio,
-                        servicioPrestamo));
+                panelPrestamos);
 
         pestañas.addTab(
                 "Reportes",
@@ -100,5 +133,55 @@ public class VentanaPrincipal extends JFrame {
                         servicioPrestamo));
 
         add(pestañas);
+
+        /*
+         * =====================================================
+         * BOTÓN SALIR
+         * =====================================================
+         */
+
+        btnSalir =
+                new JButton(
+                        "Guardar y Salir");
+
+        btnSalir.setBounds(
+                800,
+                610,
+                150,
+                30);
+
+        add(btnSalir);
+
+        /*
+         * =====================================================
+         * EVENTO SALIR
+         * =====================================================
+         */
+
+        btnSalir.addActionListener(e -> {
+
+            int respuesta =
+                    JOptionPane.showConfirmDialog(
+
+                            null,
+
+                            "¿Desea guardar los datos y cerrar el sistema?",
+
+                            "Salir",
+
+                            JOptionPane.YES_NO_OPTION);
+
+            if(respuesta ==
+                    JOptionPane.YES_OPTION) {
+
+                servicioItem.guardarDatos();
+
+                servicioSocio.guardarDatos();
+
+                servicioPrestamo.guardarDatos();
+
+                System.exit(0);
+            }
+        });
     }
 }

@@ -1,6 +1,11 @@
 package vista;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -43,6 +48,7 @@ public class PanelReportes extends JPanel {
     private JTextArea areaReporte;
 
     private JButton btnGenerar;
+    private JButton btnExportar;
 
     /*
      * =====================================================
@@ -79,6 +85,24 @@ public class PanelReportes extends JPanel {
 
         /*
          * =====================================================
+         * BOTÓN EXPORTAR
+         * =====================================================
+         */
+
+        btnExportar =
+                new JButton(
+                        "Exportar TXT");
+
+        btnExportar.setBounds(
+                220,
+                20,
+                180,
+                30);
+
+        add(btnExportar);
+
+        /*
+         * =====================================================
          * ÁREA DE TEXTO
          * =====================================================
          */
@@ -109,6 +133,17 @@ public class PanelReportes extends JPanel {
         btnGenerar.addActionListener(e -> {
 
             generarReporte();
+        });
+
+        /*
+         * =====================================================
+         * EVENTO EXPORTAR TXT
+         * =====================================================
+         */
+
+        btnExportar.addActionListener(e -> {
+
+            exportarTXT();
         });
     }
 
@@ -159,6 +194,23 @@ public class PanelReportes extends JPanel {
                 servicioPrestamo
                 .getPrestamos()
                 .size();
+
+        texto += "\n\n";
+
+        texto +=
+                "Promedio Prestamos por Socio: "
+                +
+                reporte.promedioPrestamosPorSocio(
+                        servicioPrestamo);
+
+        texto += "\n\n";
+
+        texto +=
+                "Items Disponibles: "
+                +
+                reporte.itemsDisponibles(
+                        servicioItem,
+                        servicioPrestamo);
 
         texto += "\n\n";
 
@@ -239,5 +291,37 @@ public class PanelReportes extends JPanel {
         }
 
         areaReporte.setText(texto);
+    }
+
+    /*
+     * =====================================================
+     * EXPORTAR REPORTE TXT
+     * =====================================================
+     */
+
+    private void exportarTXT() {
+
+        try {
+
+            BufferedWriter writer =
+                    new BufferedWriter(
+                            new FileWriter(
+                                    "reporte.txt"));
+
+            writer.write(
+                    areaReporte.getText());
+
+            writer.close();
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Reporte exportado correctamente");
+
+        } catch(IOException e) {
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Error al exportar reporte");
+        }
     }
 }

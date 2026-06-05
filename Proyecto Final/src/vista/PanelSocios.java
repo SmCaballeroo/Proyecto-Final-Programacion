@@ -24,6 +24,7 @@ import servicio.ServicioSocio;
 public class PanelSocios extends JPanel {
 
     private ServicioSocio servicioSocio;
+    private PanelPrestamos panelPrestamos;
 
     /*
      * =====================================================
@@ -52,10 +53,11 @@ public class PanelSocios extends JPanel {
      */
 
     public PanelSocios(
-            ServicioSocio servicioSocio) {
+            ServicioSocio servicioSocio,
+            PanelPrestamos panelPrestamos) {
 
-        this.servicioSocio =
-                servicioSocio;
+        this.servicioSocio = servicioSocio;
+        this.panelPrestamos = panelPrestamos;
 
         setLayout(null);
 
@@ -273,7 +275,19 @@ public class PanelSocios extends JPanel {
 
         btnRegistrar.addActionListener(e -> {
 
-            if(txtDocumento.getText().trim().isEmpty()) {
+            String documento =
+                    txtDocumento.getText().trim();
+
+            String nombre =
+                    txtNombre.getText().trim();
+
+            String telefono =
+                    txtTelefono.getText().trim();
+
+            String correo =
+                    txtCorreo.getText().trim();
+
+            if(documento.isEmpty()) {
 
                 JOptionPane.showMessageDialog(
                         null,
@@ -282,7 +296,16 @@ public class PanelSocios extends JPanel {
                 return;
             }
 
-            if(txtNombre.getText().trim().isEmpty()) {
+            if(!documento.matches("\\d+")) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "El documento solo debe contener números positivos");
+
+                return;
+            }
+
+            if(nombre.isEmpty()) {
 
                 JOptionPane.showMessageDialog(
                         null,
@@ -291,7 +314,16 @@ public class PanelSocios extends JPanel {
                 return;
             }
 
-            if(txtTelefono.getText().trim().isEmpty()) {
+            if(!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "El nombre no puede contener números");
+
+                return;
+            }
+
+            if(telefono.isEmpty()) {
 
                 JOptionPane.showMessageDialog(
                         null,
@@ -300,7 +332,7 @@ public class PanelSocios extends JPanel {
                 return;
             }
 
-            if(txtCorreo.getText().trim().isEmpty()) {
+            if(correo.isEmpty()) {
 
                 JOptionPane.showMessageDialog(
                         null,
@@ -311,24 +343,34 @@ public class PanelSocios extends JPanel {
 
             Socio socio =
                     new Socio(
-                            txtDocumento.getText(),
-                            txtNombre.getText(),
-                            txtTelefono.getText(),
-                            txtCorreo.getText());
+                            documento,
+                            nombre,
+                            telefono,
+                            correo);
 
-            servicioSocio.agregarSocio(socio);
+            boolean agregado =
+                    servicioSocio.agregarSocio(socio);
+
+            if(!agregado) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Ya existe un socio con ese documento");
+
+                return;
+            }
 
             servicioSocio.guardarDatos();
 
             actualizarTabla();
 
-            limpiarCampos();
+            panelPrestamos.recargarCombos();
 
+            limpiarCampos();
             JOptionPane.showMessageDialog(
                     null,
                     "Socio registrado correctamente");
         });
-
         /*
          * =====================================================
          * EVENTO BUSCAR
@@ -446,6 +488,8 @@ public class PanelSocios extends JPanel {
                 servicioSocio.guardarDatos();
 
                 actualizarTabla();
+
+                panelPrestamos.recargarCombos();
 
                 limpiarCampos();
 

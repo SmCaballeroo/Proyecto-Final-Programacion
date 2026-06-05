@@ -18,15 +18,6 @@ import servicio.ServicioItem;
 import servicio.ServicioPrestamo;
 import servicio.ServicioSocio;
 
-/*
- * =====================================================
- * PANEL PRESTAMOS
- * =====================================================
- * FUNCIÓN:
- * Gestionar préstamos y devoluciones.
- * =====================================================
- */
-
 public class PanelPrestamos extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -55,9 +46,11 @@ public class PanelPrestamos extends JPanel {
 
     private JComboBox<Socio> comboSocios;
 
-    private JButton btnPrestar;
+    private JComboBox<String> comboFiltro;
 
+    private JButton btnPrestar;
     private JButton btnDevolver;
+    private JButton btnRenovar;
 
     /*
      * =====================================================
@@ -78,7 +71,7 @@ public class PanelPrestamos extends JPanel {
 
         /*
          * =====================================================
-         * LABEL ITEM
+         * ITEM
          * =====================================================
          */
 
@@ -106,7 +99,7 @@ public class PanelPrestamos extends JPanel {
 
         /*
          * =====================================================
-         * LABEL SOCIO
+         * SOCIO
          * =====================================================
          */
 
@@ -134,7 +127,7 @@ public class PanelPrestamos extends JPanel {
 
         /*
          * =====================================================
-         * BOTÓN PRESTAR
+         * BOTONES
          * =====================================================
          */
 
@@ -149,12 +142,6 @@ public class PanelPrestamos extends JPanel {
 
         add(btnPrestar);
 
-        /*
-         * =====================================================
-         * BOTÓN DEVOLVER
-         * =====================================================
-         */
-
         btnDevolver =
                 new JButton("Devolver");
 
@@ -165,6 +152,53 @@ public class PanelPrestamos extends JPanel {
                 30);
 
         add(btnDevolver);
+
+        btnRenovar =
+                new JButton("Renovar");
+
+        btnRenovar.setBounds(
+                90,
+                170,
+                120,
+                30);
+
+        add(btnRenovar);
+
+        /*
+         * =====================================================
+         * FILTRO
+         * =====================================================
+         */
+
+        JLabel lblFiltro =
+                new JLabel("Filtro:");
+
+        lblFiltro.setBounds(
+                20,
+                220,
+                100,
+                25);
+
+        add(lblFiltro);
+
+        comboFiltro =
+                new JComboBox<>();
+
+        comboFiltro.addItem("Todos");
+        comboFiltro.addItem("Activos");
+        comboFiltro.addItem("Vencidos");
+        comboFiltro.addItem("Devueltos");
+
+        comboFiltro.setBounds(
+                100,
+                220,
+                180,
+                25);
+
+        add(comboFiltro);
+
+        comboFiltro.addActionListener(e ->
+                actualizarTabla());
 
         /*
          * =====================================================
@@ -279,13 +313,9 @@ public class PanelPrestamos extends JPanel {
 
             int respuesta =
                     JOptionPane.showConfirmDialog(
-
                             null,
-
                             "¿Desea registrar la devolución?",
-
                             "Confirmación",
-
                             JOptionPane.YES_NO_OPTION);
 
             if(respuesta ==
@@ -307,7 +337,61 @@ public class PanelPrestamos extends JPanel {
 
         /*
          * =====================================================
-         * CARGAR DATOS INICIALES
+         * EVENTO RENOVAR
+         * =====================================================
+         */
+
+        btnRenovar.addActionListener(e -> {
+
+            int fila =
+                    tabla.getSelectedRow();
+
+            if(fila < 0) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Seleccione un préstamo");
+
+                return;
+            }
+
+            Prestamo prestamo =
+                    servicioPrestamo
+                    .getPrestamos()
+                    .get(fila);
+
+            if(prestamo.isDevuelto()) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No puede renovarse un préstamo devuelto");
+
+                return;
+            }
+
+            if(prestamo.calcularMulta() > 0) {
+
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No puede renovarse un préstamo vencido");
+
+                return;
+            }
+
+            prestamo.renovarPrestamo(7);
+
+            servicioPrestamo.guardarDatos();
+
+            actualizarTabla();
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Préstamo renovado por 7 días");
+        });
+
+        /*
+         * =====================================================
+         * CARGAR DATOS
          * =====================================================
          */
 
@@ -340,6 +424,10 @@ public class PanelPrestamos extends JPanel {
             comboSocios.addItem(socio);
         }
     }
+    public void refrescarCombos() {
+
+        cargarCombos();
+    }
 
     /*
      * =====================================================
@@ -350,6 +438,10 @@ public class PanelPrestamos extends JPanel {
     private void actualizarTabla() {
 
         modeloTabla.setRowCount(0);
+
+        String filtro =
+                comboFiltro.getSelectedItem()
+                .toString();
 
         for(Prestamo prestamo :
                 servicioPrestamo.getPrestamos()) {
@@ -371,6 +463,24 @@ public class PanelPrestamos extends JPanel {
                 estado = "Activo";
             }
 
+            if(filtro.equals("Activos")
+                    && !estado.equals("Activo")) {
+
+                continue;
+            }
+
+            if(filtro.equals("Vencidos")
+                    && !estado.equals("Vencido")) {
+
+                continue;
+            }
+
+            if(filtro.equals("Devueltos")
+                    && !estado.equals("Devuelto")) {
+
+                continue;
+            }
+
             modeloTabla.addRow(
 
                     new Object[] {
@@ -390,6 +500,18 @@ public class PanelPrestamos extends JPanel {
                             "$" +
                             prestamo.calcularMulta()
                     });
+         
+            
         }
+    }
+    /*
+     * =====================================================
+     * RECARGAR COMBOS
+     * =====================================================
+     */
+
+    public void recargarCombos() {
+
+        cargarCombos();
     }
 }

@@ -1,5 +1,7 @@
 package servicio;
 
+import java.util.ArrayList;
+
 import modelo.Figura;
 import modelo.Item;
 import modelo.Juego;
@@ -45,29 +47,32 @@ public class ServicioReporte {
 
     /*
      * =====================================================
-     * SOCIO CON MÁS PRÉSTAMOS
+     * SOCIO MÁS ACTIVO
      * =====================================================
      */
 
     public Socio socioMasActivo(
             ServicioPrestamo servicioPrestamo) {
 
-        Socio mejorSocio = null;
+        Socio socioActivo = null;
 
         int maxPrestamos = 0;
 
-        for(Prestamo p :
+        for(Prestamo prestamo :
                 servicioPrestamo.getPrestamos()) {
 
-            Socio socio = p.getSocio();
+            Socio socio =
+                    prestamo.getSocio();
 
             int contador = 0;
 
-            for(Prestamo otro :
+            for(Prestamo p :
                     servicioPrestamo.getPrestamos()) {
 
-                if(otro.getSocio()
-                        .equals(socio)) {
+                if(p.getSocio()
+                        .getDocumento()
+                        .equals(
+                                socio.getDocumento())) {
 
                     contador++;
                 }
@@ -77,11 +82,11 @@ public class ServicioReporte {
 
                 maxPrestamos = contador;
 
-                mejorSocio = socio;
+                socioActivo = socio;
             }
         }
 
-        return mejorSocio;
+        return socioActivo;
     }
 
     /*
@@ -106,7 +111,7 @@ public class ServicioReporte {
 
     /*
      * =====================================================
-     * PRÉSTAMOS ACTIVOS
+     * PRESTAMOS ACTIVOS
      * =====================================================
      */
 
@@ -129,7 +134,7 @@ public class ServicioReporte {
 
     /*
      * =====================================================
-     * CONTAR LIBROS
+     * TOTAL LIBROS
      * =====================================================
      */
 
@@ -152,7 +157,7 @@ public class ServicioReporte {
 
     /*
      * =====================================================
-     * CONTAR JUEGOS
+     * TOTAL JUEGOS
      * =====================================================
      */
 
@@ -175,7 +180,7 @@ public class ServicioReporte {
 
     /*
      * =====================================================
-     * CONTAR FIGURAS
+     * TOTAL FIGURAS
      * =====================================================
      */
 
@@ -198,7 +203,7 @@ public class ServicioReporte {
 
     /*
      * =====================================================
-     * PRÉSTAMOS VENCIDOS
+     * PRESTAMOS VENCIDOS
      * =====================================================
      */
 
@@ -207,15 +212,96 @@ public class ServicioReporte {
 
         int contador = 0;
 
-        for(Prestamo p :
+        for(Prestamo prestamo :
                 servicioPrestamo.getPrestamos()) {
 
-            if(p.calcularMulta() > 0) {
+            if(!prestamo.isDevuelto()
+                    &&
+                    prestamo.calcularMulta() > 0) {
 
                 contador++;
             }
         }
 
         return contador;
+    }
+
+    /*
+     * =====================================================
+     * PROMEDIO PRESTAMOS POR SOCIO
+     * =====================================================
+     */
+
+    public double promedioPrestamosPorSocio(
+            ServicioPrestamo servicioPrestamo) {
+
+        if(servicioPrestamo
+                .getPrestamos()
+                .isEmpty()) {
+
+            return 0;
+        }
+
+        ArrayList<String> socios =
+                new ArrayList<>();
+
+        for(Prestamo p :
+                servicioPrestamo.getPrestamos()) {
+
+            String documento =
+                    p.getSocio()
+                    .getDocumento();
+
+            if(!socios.contains(documento)) {
+
+                socios.add(documento);
+            }
+        }
+
+        return (double)
+                servicioPrestamo
+                .getPrestamos()
+                .size()
+                /
+                socios.size();
+    }
+
+    /*
+     * =====================================================
+     * ITEMS DISPONIBLES
+     * =====================================================
+     */
+
+    public int itemsDisponibles(
+            ServicioItem servicioItem,
+            ServicioPrestamo servicioPrestamo) {
+
+        int disponibles = 0;
+
+        for(Item item :
+                servicioItem.getItems()) {
+
+            boolean prestado = false;
+
+            for(Prestamo p :
+                    servicioPrestamo.getPrestamos()) {
+
+                if(p.getItem().equals(item)
+                        &&
+                        !p.isDevuelto()) {
+
+                    prestado = true;
+
+                    break;
+                }
+            }
+
+            if(!prestado) {
+
+                disponibles++;
+            }
+        }
+
+        return disponibles;
     }
 }
